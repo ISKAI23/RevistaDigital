@@ -1,0 +1,9 @@
+# Pasta de Elementos de Terceiros - CSS
+
+### **Função:** Todos os elementos que não forem desenvolvidos pela equipe e tenham vido de empresas/locais terceiros.
+
+#### _Exemplos:_
+
+- [Reset](reset.css): Arquivo de "limpa", normalmente oferecido por terceiros, para que o estilo de todos os navegadores partam do mesmo ponto...
+- Temas prontos: Bootstrap/outros serviços que tenham elementos relacionados externos...
+- Códigos antigos: Alguns navegadores mais antigos têm que ter rodar scripts antes de qualquer coisa...

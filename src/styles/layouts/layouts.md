@@ -1,0 +1,9 @@
+# Pasta de Elementos Fixos - CSS
+
+### **Função:** Todos os elementos que são fixos, ou seja, nunca vão mudar, independente das design escolhido.
+
+#### _Exemplos:_
+
+- Header.css: O cabeçalho do site, que sempre terá o mesmo formato/tamanho/conteúdo...
+- Footer.css: O rodapé do site, que sempre terá o mesmo formato/tamanho/conteúdo...
+- Imagens: As específicas, que terão sempre o mesmo tamanho, margens, etc...

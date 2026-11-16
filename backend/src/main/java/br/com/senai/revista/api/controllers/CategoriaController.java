@@ -3,6 +3,10 @@ package br.com.senai.revista.api.controllers;
 import br.com.senai.revista.domain.model.Categoria;
 import br.com.senai.revista.domain.repositories.CategoriaRepository;
 import br.com.senai.revista.domain.services.CategoriaService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.Optional;
@@ -27,6 +31,7 @@ import org.springframework.web.bind.annotation.RestController;
 @CrossOrigin
 @RestController
 @RequestMapping("/categoria")
+@Tag(name = "Categorias", description = "Endpoints para gerenciamento das categorias de notícias")
 public class CategoriaController {
 
     @Autowired
@@ -36,13 +41,18 @@ public class CategoriaController {
     private CategoriaService service;
     
     @GetMapping
+    @Operation(summary = "Listar todas as categorias", description = "Retorna uma lista contendo todas as categorias cadastradas no sistema.")
+    @ApiResponse(responseCode = "200", description = "Categorias listadas com sucesso")
     public List<Categoria> listarTodasCategorias() {
-        
         return repository.findAll();
-        
     }
     
     @GetMapping("/id/{id}")
+    @Operation(summary = "Buscar categoria por ID", description = "Retorna os detalhes de uma categoria específica informando o seu ID.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Categoria encontrada com sucesso"),
+        @ApiResponse(responseCode = "404", description = "Categoria não encontrada")
+    })
     public ResponseEntity<Categoria> listarCategoriaPorId(
             @PathVariable Long id) {
         
@@ -57,6 +67,11 @@ public class CategoriaController {
     }
     
     @GetMapping("/nome/{nome}")
+    @Operation(summary = "Buscar categorias por nome", description = "Retorna uma lista de categorias que contenham o termo informado no nome (ignora maiúsculas e minúsculas).")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Categorias encontradas com sucesso"),
+        @ApiResponse(responseCode = "404", description = "Nenhuma categoria encontrada com o nome informado")
+    })
     public ResponseEntity<List<Categoria>> listarCategoriasPorNome(
             @PathVariable String nome) {
         
@@ -72,6 +87,11 @@ public class CategoriaController {
     }
     
     @GetMapping("/slug/{slug}")
+    @Operation(summary = "Buscar categorias por slug", description = "Retorna uma lista de categorias baseada no slug informado.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Categorias encontradas com sucesso"),
+        @ApiResponse(responseCode = "404", description = "Nenhuma categoria encontrada com o slug informado")
+    })
     public ResponseEntity<List<Categoria>> listarCategoriasPorSlug(
             @PathVariable String slug) {
         
@@ -87,6 +107,11 @@ public class CategoriaController {
     
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
+    @Operation(summary = "Adicionar nova categoria", description = "Cria uma nova categoria no sistema de notícias.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "201", description = "Categoria criada com sucesso"),
+        @ApiResponse(responseCode = "400", description = "Dados inválidos enviados na requisição")
+    })
     public Categoria adicionarCategoria(
             @RequestBody @Valid Categoria categoria) {
         
@@ -95,6 +120,11 @@ public class CategoriaController {
     }
     
     @PutMapping("/id/{id}")
+    @Operation(summary = "Atualizar categoria", description = "Atualiza os dados de uma categoria existente com base no seu ID.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Categoria atualizada com sucesso"),
+        @ApiResponse(responseCode = "404", description = "Categoria não encontrada para atualização")
+    })
     public ResponseEntity<Categoria> atualizarCategoria(
             @PathVariable Long id,
             @RequestBody Categoria categoria) {
@@ -110,6 +140,11 @@ public class CategoriaController {
     }
     
     @DeleteMapping("/id/{id}")
+    @Operation(summary = "Excluir categoria", description = "Remove permanentemente uma categoria do sistema baseada no seu ID.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "204", description = "Categoria excluída com sucesso (Sem conteúdo)"),
+        @ApiResponse(responseCode = "404", description = "Categoria não encontrada para exclusão")
+    })
     public ResponseEntity<Void> excluirCategoria(
             @PathVariable Long id) {
         

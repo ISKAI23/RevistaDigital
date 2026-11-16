@@ -1,12 +1,13 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package br.com.senai.revista.api.controllers;
 
 import br.com.senai.revista.domain.model.Noticia;
 import br.com.senai.revista.domain.model.ConteudoNoticia;
 import br.com.senai.revista.domain.repositories.NoticiaRepository;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +33,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 @CrossOrigin
 @RestController
 @RequestMapping("/conteudo-noticia")
+@Tag(name = "Conteúdo de Notícias", description = "Endpoints para gerenciamento dos blocos de conteúdo (seções) atrelados às notícias")
 public class ConteudoNoticiaController {
 
     @Autowired
@@ -50,6 +52,8 @@ public class ConteudoNoticiaController {
         ) {}
 
     @GetMapping
+    @Operation(summary = "Listar todos os conteúdos de notícias", description = "Retorna uma lista contendo todos os blocos de conteúdo cadastrados no sistema.")
+    @ApiResponse(responseCode = "200", description = "Conteúdos listados com sucesso")
     public List<ConteudoNoticia> listarTodosConteudoNoticia() {
         List<ConteudoNoticia> result = conteudoRepository.findAll();
         return result;
@@ -57,7 +61,13 @@ public class ConteudoNoticiaController {
     }
 
     @GetMapping("/id/{id}")
-    public ResponseEntity<ConteudoNoticia> listarConteudoNoticiaPorID(@PathVariable Long id) {
+    @Operation(summary = "Buscar conteúdo por ID", description = "Retorna os detalhes de um bloco de conteúdo específico baseado no seu ID.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Conteúdo encontrado com sucesso"),
+        @ApiResponse(responseCode = "404", description = "Conteúdo não encontrado")
+    })
+    public ResponseEntity<ConteudoNoticia> listarConteudoNoticiaPorID(
+            @Parameter(description = "ID do conteúdo a ser buscado") @PathVariable Long id) {
         Optional<ConteudoNoticia> result = conteudoRepository.findById(id);
         if (result.isPresent()) {
             return ResponseEntity.ok(result.get());
@@ -68,7 +78,13 @@ public class ConteudoNoticiaController {
     }
     
     @GetMapping("/secao/{tipo}")
-    public ResponseEntity<List<ConteudoNoticia>> listarConteudoNoticiaPorTipoSecao(@PathVariable String tipo) {
+    @Operation(summary = "Buscar conteúdos por tipo de seção", description = "Retorna uma lista de conteúdos filtrados pelo tipo da seção (ex: TEXTO, IMAGEM, VIDEO).")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Conteúdos encontrados com sucesso"),
+        @ApiResponse(responseCode = "404", description = "Nenhum conteúdo encontrado para o tipo de seção informado")
+    })
+    public ResponseEntity<List<ConteudoNoticia>> listarConteudoNoticiaPorTipoSecao(
+            @Parameter(description = "Tipo da seção (ex: TEXTO, IMAGEM)") @PathVariable String tipo) {
         
         List<ConteudoNoticia> conteudoNoticia = conteudoRepository.findByTipoSecaoIgnoreCase(tipo);
         
@@ -81,7 +97,14 @@ public class ConteudoNoticiaController {
     }
     
     @GetMapping("/noticia/id/{noticiaID}")
-    public ResponseEntity<List<ConteudoNoticia>> listarConteudoNoticiaPorNoticia(@PathVariable Long noticiaID) {
+    @Operation(summary = "Buscar conteúdos vinculados a uma Notícia", description = "Retorna todos os blocos de conteúdo atrelados a uma notícia específica, informando o ID da notícia.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Conteúdos encontrados com sucesso"),
+        @ApiResponse(responseCode = "404", description = "Nenhum conteúdo encontrado para esta notícia"),
+        @ApiResponse(responseCode = "500", description = "Erro interno: Notícia não encontrada (gera RuntimeException)")
+    })
+    public ResponseEntity<List<ConteudoNoticia>> listarConteudoNoticiaPorNoticia(
+            @Parameter(description = "ID da Notícia a qual o conteúdo pertence") @PathVariable Long noticiaID) {
         
         Noticia noticia = noticiaRepository
                 .findById(noticiaID)
@@ -98,21 +121,35 @@ public class ConteudoNoticiaController {
     }
     
     @GetMapping("/personalizado")
-    public List<ConteudoNoticia> queryPersonalizada(@RequestBody FiltroConteudo busca) {
+    @Operation(summary = "Busca avançada e personalizada de conteúdos", description = "Realiza uma busca dinâmica utilizando múltiplos filtros através do corpo da requisição.")
+    @ApiResponse(responseCode = "200", description = "Lista de conteúdos correspondentes aos filtros aplicados")
+    public List<ConteudoNoticia> queryPersonalizada(
+            @Parameter(description = "Objeto contendo os filtros de busca desejados") @RequestBody FiltroConteudo busca) {
         return conteudoService.buscarConteudo(busca);
     } 
     
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public ConteudoNoticia adicionarConteudoNoticia(@RequestBody ConteudoNoticia conteudo) {
+    @Operation(summary = "Adicionar novo conteúdo de notícia", description = "Cadastra um novo bloco de conteúdo atrelado a uma notícia no sistema.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "201", description = "Conteúdo criado com sucesso"),
+        @ApiResponse(responseCode = "400", description = "Erro na requisição ou dados inválidos")
+    })
+    public ConteudoNoticia adicionarConteudoNoticia(
+            @RequestBody ConteudoNoticia conteudo) {
         
         return conteudoService.adicionarConteudoNoticia(conteudo);
         
     }
     
     @PutMapping("/id/{id}")
+    @Operation(summary = "Atualizar conteúdo de notícia", description = "Atualiza os dados de um bloco de conteúdo existente com base no seu ID.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Conteúdo atualizado com sucesso"),
+        @ApiResponse(responseCode = "404", description = "Conteúdo não encontrado para atualização")
+    })
     public ResponseEntity<ConteudoNoticia> atualizarConteudoNoticia(
-            @PathVariable Long id,
+            @Parameter(description = "ID do conteúdo a ser atualizado") @PathVariable Long id,
             @RequestBody ConteudoNoticia conteudo) {
         
         if(!conteudoRepository.existsById(id)) {
@@ -126,7 +163,13 @@ public class ConteudoNoticiaController {
     }
     
     @DeleteMapping("/id/{id}")
-    public ResponseEntity<Void> excluirConteudoNoticia(@PathVariable Long id) {
+    @Operation(summary = "Excluir conteúdo de notícia", description = "Remove permanentemente um bloco de conteúdo do sistema baseado no seu ID.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "204", description = "Conteúdo excluído com sucesso (Sem conteúdo)"),
+        @ApiResponse(responseCode = "404", description = "Conteúdo não encontrado para exclusão")
+    })
+    public ResponseEntity<Void> excluirConteudoNoticia(
+            @Parameter(description = "ID do conteúdo a ser excluído") @PathVariable Long id) {
         
         if (!conteudoRepository.existsById(id)) {
             return ResponseEntity.notFound().build();
